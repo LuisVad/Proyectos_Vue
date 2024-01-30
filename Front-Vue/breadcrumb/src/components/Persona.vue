@@ -27,20 +27,34 @@ import personaService from "../services/Persona"; // Ajusta la ruta según tu es
   export default {
     data() {
       return {
+        filtro: null,
+        sortBy: "name",
+        sortDesc: false,
         perPage: 3,
         currentPage: 1,
-        personas: []
+        personas: [], 
+        fields: [
+          { key: "nombre", label: "Nombre", sortable: true},
+          { key: "apellido", label: "Apellido Paterno", sortable: true },
+          { key: "apellidoMaterno", label: "Apellido Materno", sortable: true },
+          { key: "address", label: "Direccion", sortable: true },
+          { key: "birthday", label: "Fech. Nac.", sortable: true },
+          { key: "email", label: "Email", sortable: true },
+          { key: "email", label: "Email", sortable: true },
+        ]
       };
     },
     mounted() {
         this.obtenerPersonas();
     },
   methods: {
-    async obtenerPersonas() {
+    async obtenerPersonas(ctx) {
+      console.log(ctx);
       try {
         const data = await personaService.obtenerPersonasPaginadas(
           parseInt(this.currentPage),
-          parseInt(this.perPage)
+          parseInt(this.perPage),
+          this.sortBy
         );
         this.personas = data.content;
       } catch (error) {
