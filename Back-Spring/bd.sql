@@ -1,4 +1,4 @@
-create database example1;
+`example1`
 
 INSERT INTO `example1`.`persona` (`id`, `address`, `birthday`, `email`, `firstname`, `lastname`, `name`) VALUES ('1', 'address1', '1990-01-01', 'email1@example.com', 'John', 'Doe', 'John Doe');
 INSERT INTO `example1`.`persona` (`id`, `address`, `birthday`, `email`, `firstname`, `lastname`, `name`) VALUES ('2', 'address2', '1991-02-02', 'email2@example.com', 'Jane', 'Smith', 'Jane Smith');
