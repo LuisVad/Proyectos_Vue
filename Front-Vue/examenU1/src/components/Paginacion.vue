@@ -1,34 +1,87 @@
 <template>
+  <div id="app">
     <div>
-      <h1>Paginacion</h1>
-      <div class="m-5">
-        <b-breadcrumb :items="items"  class="bg-light p-2 rounded"></b-breadcrumb>
+      <b-navbar toggleable="lg" type="info" variant="info" sticky>
+        <b-navbar-brand href="/#/inicio"
+          ><img
+            src="https://placekitten.com/g/30/30"
+            class="d-inline-block align-top"
+            alt="Kitten"
+        />Inicio</b-navbar-brand>
+
+        <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+
+        <b-collapse id="nav-collapse" is-nav>
+          <!-- Right aligned nav items -->
+          <b-navbar-nav class="ml-auto" right>
+            <b-nav-item-dropdown text="Lang" right>
+              <b-dropdown-item href="#">EN</b-dropdown-item>
+              <b-dropdown-item href="#">ES</b-dropdown-item>
+              <b-dropdown-item href="#">RU</b-dropdown-item>
+              <b-dropdown-item href="#">FA</b-dropdown-item>
+            </b-nav-item-dropdown>
+
+            <b-nav-item-dropdown right>
+              <template #button-content>
+                <em>User</em>
+              </template>
+              <b-dropdown-item href="#">Profile</b-dropdown-item>
+              <b-dropdown-item href="#">Sign Out</b-dropdown-item>
+            </b-nav-item-dropdown>
+          </b-navbar-nav>
+        </b-collapse>
+      </b-navbar>
+    </div>
+    <div class="row mt-1">
+      <div class="col-3">
+        <b-nav vertical class="pt-5">
+          <b-nav-item>
+            <b-link :to="{ name: 'principal' }" class="text-primary">Principal</b-link>
+          </b-nav-item>
+          <b-nav-item >
+            <b-link :to="{ name: 'formulario' }" class="text-primary">Formulario</b-link>
+          </b-nav-item>
+          <b-nav-item>
+            <b-link :to="{ name: 'paginacion' }" class="text-primary">Paginación</b-link>
+          </b-nav-item>
+        </b-nav>
       </div>
-      <div class="overflow-auto">
-        
-        <b-table
-          striped
-          :items="vehiculos"
-          :per-page="perPage"
-          :current-page="currentPage"
-          small
-          :fields="fields"
-          :sort-by.sync="sortBy"
-          :sort-desc.sync="sortDesc"
-          :filter="filtro"
-          @filtered="onFiltered"
-        ></b-table>
-        <b-pagination
-          v-model="currentPage"
-          :total-rows="totalRows"
-          :per-page="perPage"
-        ></b-pagination>
+      <div class="col-9">
+        <div>
+          <div>
+            <h1>Paginación</h1>
+            <div class="m-5">
+              <b-breadcrumb :items="items"></b-breadcrumb>
+              <div class="overflow-auto">
+              <b-pagination
+                v-model="currentPage"
+                :total-rows="totalRows"
+                :per-page="perPage"
+              ></b-pagination>
+              <b-table
+                striped
+                :items="obtenerVehiculos"
+                :per-page="perPage"
+                :current-page="currentPage"
+                small
+                :fields="fields"
+                :sort-by.sync="sortBy"
+                :sort-desc.sync="sortDesc"
+                :filter="filtro"
+                @filtered="onFiltered"
+              ></b-table>
+            </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    
-  </template>
-  
+  </div>
+</template>
+
   <script>
+  import vehiculoService from "../services/Vehiculos"; // Ajusta la ruta según tu estructura de archivos
+
   export default {
     data() {
       return {
@@ -46,55 +99,43 @@
         ],
         items: [
           {
-            text: "Landing Page",
-            to: "/",
+            text: "Inicio",
+            to: "/#/inicio",
           },
           {
             text: "Principal",
             to: "/principal",
           },
-          { 
-            text: "Paginacion", active: true 
+          {
+            text: "Paginación",
+            active: true,
           },
         ],
       };
     },
-  
-    methods: {
-      async fetchData() {
-        try {
-          const response = await fetch(
-            "http://localhost:8080/api/vehiculos/page",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-            }
-          );
-  
-          if (!response.ok) {
-            console.error("Error al obtener los datos:", response);
-            return;
-          }
-  
-          const data = await response.json();
-          this.vehiculos = data.content;
-        } catch (error) {
-          console.error("Error al obtener los datos:", error);
-        }
-      },
-      onFiltered(filteredItems) {
-        this.currentPage = 1;
-        this.totalRows = filteredItems.length;
-      },
-    },
     mounted() {
-      this.fetchData();
+      this.obtenerVehiculos();
     },
-    computed: {
-      totalRows() {
-        return this.vehiculos.length;
-      },
+    methods: {
+    async obtenerVehiculos(ctx) {
+      console.log(ctx);
+      try {
+        const data = await vehiculoService.obtenerVehiculosPaginados(
+          parseInt(ctx.currentPage)-1,
+          parseInt(ctx.perPage),
+          ctx.sortBy
+        );
+        this.rows = data.totalElements;
+        return data.content;
+      } catch (error) {
+        console.error(error);
+      }
     },
+    onFiltered(filteredItems) {
+      this.currentPage = 1;
+      this.rows = filteredItems.length;
+    },
+  },
   };
   </script>
   
